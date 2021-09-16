@@ -1,8 +1,16 @@
 import Aluno from '../models/Aluno';
+import Photo from '../models/Photo';
 
 class AlunoController {
   async index(req, res) {
-    const alunos = await Aluno.findAll();
+    const alunos = await Aluno.findAll({
+      attributes: ['id', 'nome', 'sobrenome', 'email', 'idade'],
+      order: [['id', 'DESC'], [Photo, 'id', 'DESC']],
+      include: {
+        model: Photo,
+        attributes: ['id', 'url', 'filename'],
+      },
+    });
     res.json(alunos);
   }
 
@@ -25,25 +33,27 @@ class AlunoController {
 
   async show(req, res) {
     try {
-      const alunoId = req.params.id;
+      const { id } = req.params;
 
-      if (!alunoId) {
+      if (!id) {
         return res.status(400).json({
           errors: ['Id não enviado'],
         });
       }
-      const aluno = await Aluno.findByPk(alunoId);
+      const aluno = await Aluno.findByPk(id, {
+        attributes: ['id', 'nome', 'sobrenome', 'email', 'idade'],
+        order: [['id', 'DESC'], [Photo, 'id', 'DESC']],
+        include: {
+          model: Photo,
+          attributes: ['id', 'url', 'filename'],
+        },
+      });
       if (!aluno) {
         return res.status(400).json({
           errors: ['Aluno não existe'],
         });
       }
-      const {
-        id, nome, email, idade,
-      } = aluno;
-      return res.json({
-        id, nome, email, idade,
-      });
+      return res.json(aluno);
     } catch (e) {
       return res.status(400).json({
         errors: e.errors.map((err) => err.message),

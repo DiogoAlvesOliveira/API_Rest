@@ -7,7 +7,7 @@ const router = new Router();
 router.get('/', loginRequeired, userController.index);
 router.get('/:id', userController.show);
 
-router.post('/', userController.store);
+router.post('/', loginRequeired, userController.store);
 router.put('/', loginRequeired, userController.update);
 router.delete('/', loginRequeired, userController.delete);
 
